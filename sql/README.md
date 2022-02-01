@@ -1,3 +1,12 @@
+# Wstęp
+
+Ściąga oparta głównie o:
+- www.samouczekprogramisty.pl
+- https://www.w3schools.com/sql/sql_hosting.asp
+
+Przykładowa baza danych do pobrania:
+wget https://github.com/SamouczekProgramisty/chinook-database/raw/master/ChinookDatabase/DataSources/Chinook_Sqlite.sqlite
+
 # SQL
 
 ## Język SQL
@@ -105,9 +114,18 @@ Różnią się między soba implementacją oraz wersją wspieranego SQL'a.
 6. zapytania, np.: SELECT * FROM tabela;
 7. ustawienia np.: .headers on/off
 
-# SQL Składnia
-## Wyrażenia
-### Select
+### Tworzenie Bazy Danych
+Z poziomu aplikacji sqlite3: sqlite3 nazwabazy.db
+
+### Eksportowanie Do Skryptu SQL
+Z poziomu aplikacji sqlite3: sqlite3 nazwabazy.db .dump > text_db.sql
+
+### Generowanie Bazy Danych Na Podstawie Skryptu
+Z poziomu aplikacji sqlite3: sqlite3 nazwabazy.db < text_db.sql
+
+
+# SQL Składnia DQL
+## Select
 SELECT - pobieranie danych, w nawiasach opcjonalne wyrażenia:
    SELECT ...
 (    FROM ...)
@@ -186,7 +204,6 @@ Przykład 1.2 - filtrowanie po grupach krajów które wydały powyżej 100:
 select billingcountry as bc, sum(total) as st from invoice group by bc having st > 100;
 Przykład 1.2 - filtrowanie po grupach krajów które wydały powyżej 100, pomijając miasto Berlin:
 select billingcountry as bc, sum(total) as st from invoice where billingcity != 'Ottawa' group by bc having st > 100;
-
 
 ## Funkcje
 
@@ -297,6 +314,82 @@ select name from artist where artistid IN (Select artistid from album group BY a
 
 ### Podzapytanie skorelowane
 To takie które powiązane jest z głównym zapytaniem poprzez np alias tabeli
+
+# SQL Składnia DDL
+
+## Tworzenie Bazy Danych
+CREATE DATABASE nazwa_bazy;
+
+## Usuwanie Bazy Danych
+DROP DATABASE nazwa_bazy;
+
+## Tworzenie Kopii Zapasowej Bazy
+BACKUP DATABASE nazwa_bazy;
+
+## Tworzenie Tabeli
+### Nowej
+CREATE TABLE Pieczywo ( 
+PieczywoID int,
+Nazwa varchar(255),
+Typ varchar(255));
+
+### Na Podstawie Innej
+CREATE TABLE Tosty AS
+SELECT Nazwa, Typ
+FROM Pieczywo;
+
+### Constraint
+Ograniczanie dotyczące typów danych dla kolumny.
+#### NOT NULL
+CREATE TABLE Persons (
+    ID int NOT NULL,
+    LastName varchar(255) NOT NULL,
+    Age int
+);
+
+#### UNIQUE
+CREATE TABLE Persons (
+    ID int NOT NULL,
+    LastName varchar(255) NOT NULL,
+    Age int,
+    UNIQUE (ID)
+);
+
+#### PRIMARY KEY
+Określa która kolumna jest kluczem w tabeli. Taka kolumna musi być unikalna i nie może posiadać wartości NULL.
+CREATE TABLE Persons (
+    ID int NOT NULL,
+    LastName varchar(255) NOT NULL,
+    Age int,
+    PRIMARY KEY (ID)
+);
+
+#### FOREGIN KEY
+Zapobiega usuwaniu elementów w tabeli jeśli połączone są one z elementami innych tabel.
+Takie połączenie realizuje się jako dodatkową kolumnę odnoszącą się do primary key innej tabeli.
+CREATE TABLE Orders (
+    OrderID int NOT NULL,
+    OrderNumber int NOT NULL,
+    PersonID int,
+    PRIMARY KEY (OrderID),
+    FOREIGN KEY (PersonID) REFERENCES Persons(PersonID)
+);
+
+TODO
+
+## Usunięcie Tabeli
+DROP TABLE nazwa;
+
+## Wyczyszczenie Tabeli
+TRUNCATE TABLE nazwa;
+
+## Modyfikacja Tabeli TRUNCATE
+### Dodanie Kolumny
+ALTER TABLE Pieczywo ADD Cena int;
+
+### Usunięcie Kolumny
+ALTER TABLE Pieczywo DROP COLUMN Cena;
+
 
 
 # SQL Injection
